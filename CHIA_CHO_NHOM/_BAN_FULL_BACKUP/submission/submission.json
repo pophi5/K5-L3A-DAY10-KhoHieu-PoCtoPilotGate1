@@ -1,0 +1,17 @@
+{
+  "team": "K5-L3A-DAY10-KhoHieu-PoCtoPilotGate1",
+  "members": [
+    "LeThaiDuong-2A202603415",
+    "NguyenTrungDuy-2A202603387",
+    "PhamQuangTruong-2A20260378",
+    "NguyenVuKhanh-2A202603427"
+  ],
+  "incident": "",
+  "decision_v1": "Tiếp tục",
+  "decision_v2": "",
+  "three_lines": {
+    "environment_assumption": "",
+    "reduce_or_prevent": "",
+    "measure_in_pilot": ""
+  }
+}

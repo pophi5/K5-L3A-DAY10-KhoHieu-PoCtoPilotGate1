@@ -5,7 +5,7 @@
 - Tên nhóm (`TenNhom`, không dấu, không khoảng trắng): `KhoHieu`
 - Lớp: `L3A`
 - Repo của bàn: `K5-L3A-DAY10-KhoHieu-PoCtoPilotGate1`
-- Thẻ sự cố đã bốc (S1–S8):
+- Thẻ sự cố đã bốc (S1–S8): `S1`
 
 ## Thành viên
 

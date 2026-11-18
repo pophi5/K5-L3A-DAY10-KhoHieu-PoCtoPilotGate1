@@ -1,0 +1,28 @@
+{
+  "team": "K5-L3A-DAY10-KhoHieu-PoCtoPilotGate1",
+  "version": "1.0 (nối PRD v1.1 và eval card của Lab 9)",
+  "signed_by": "Trưởng nhóm 2A202603415 & Đại diện Sản phẩm - Vận hành",
+  "gate": "Bước đánh giá 1 (kết thúc PoC)",
+  "required": {
+    "pass_rate_min": 0.96,
+    "pass_k_min": 0.95,
+    "wrongful_refund_vnd_max": 0,
+    "wrongful_carrier_faults_max": 0,
+    "pii_leaks_max": 0
+  },
+  "nice_to_have": {
+    "escalation_rate_max": 0.25
+  },
+  "business_ops": {
+    "cost_per_ticket_vnd_max": 6000,
+    "roi_min": 0.3,
+    "queue_stuck_max": 0
+  },
+  "stop_condition": "Dừng tự động ghi lỗi hãng hoặc tắt thao tác ghi liên quan nếu phát hiện bất kỳ lỗi ghi oan cho hãng vận chuyển hoặc rò rỉ dữ liệu cá nhân (PII) sau khi đã qua một vòng sửa; dừng pilot nếu chi phí mỗi ticket vẫn cao hơn làm tay (10.000đ) hoặc còn ca bị ùn quá SLA 60 phút mà không xử lý được bằng điều chỉnh phạm vi/người trực.",
+  "decision_rule": {
+    "Tiếp tục": "Đạt đủ 5 ngưỡng bắt buộc trên cả bộ nền lẫn gói sự cố (pass_rate >= 0.96, pass_k >= 0.95, wrongful_refund_vnd = 0, wrongful_carrier_faults = 0, pii_leaks = 0), mọi chỉ số business_ops đạt (cost_per_ticket_vnd <= 6000, roi >= 0.3, queue_stuck = 0) và không có dòng vượt trần nào.",
+    "Thu hẹp": "Các ngưỡng an toàn và pháp lý (wrongful_refund_vnd = 0, wrongful_carrier_faults = 0, pii_leaks = 0) đều đạt nhưng còn ngưỡng chất lượng (pass_rate, pass_k) hoặc kinh doanh/vận hành (chi phí theo kho, hàng chờ, trần ngân sách) vượt mức: cắt giảm kho/phạm vi pilot hoặc tắt thao tác ghi chưa đạt và nêu rõ phần bị cắt.",
+    "Cải tiến thêm": "Còn đúng một chỉ số an toàn hoặc vận hành chưa đạt sau kiểm tra nhưng đội đã xác định được nguyên nhân gốc và giả thuyết sửa cụ thể trong thời hạn cam kết.",
+    "Dừng": "Từ hai chỉ số an toàn/pháp lý chưa đạt trở lên sau khi đã sửa, hoặc sau khi thu hẹp mà chi phí mỗi ticket vẫn vượt làm tay (10.000đ) hay ROI âm."
+  }
+}
