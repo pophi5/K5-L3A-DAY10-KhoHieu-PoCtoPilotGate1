@@ -93,6 +93,8 @@ Ba loại lỗi:
 | **Thứ bậc hệ thống:** có hai hệ thống cùng ghi / cùng theo dõi một thứ mà không rõ bên nào là chủ (ví dụ CSKH hoàn tay và trợ lý cùng ghi sổ)? | Có nguy cơ (câu chữ khách trong ticket và tracking DB cùng cung cấp `delay_days` mà không có cổng phân xử ưu tiên DB) | Có nguy cơ (trợ lý ghi lỗi hãng không đi qua kiểm tra ràng buộc `tracking DB`) |
 | **Trạng thái hỏng:** nhiều lỗi cộng lại có làm tính năng không dùng được (ví dụ LLM lỗi liên tiếp)? | Không (đây là lỗi suy luận đơn lẻ theo seed 55) | Không |
 
+Ở `T-002@55`, sự kiện `model_override` cho thấy trợ lý dùng lời khai trễ 5 ngày thay cho 2 ngày trong tracking. Cả khoản hoàn sai 20.000đ và lỗi ghi oan cho VNX đều bắt nguồn từ lần thay số ngày này.
+
 ### Phần 3 · Hướng xử lý (mỗi lỗi một ô)
 
 | | Lỗi 1 | Lỗi 2 |
