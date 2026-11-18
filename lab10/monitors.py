@@ -19,7 +19,24 @@ def escalation_rate(trials):
     return sum(t["status"] == "escalated" for t in trials) / max(1, len(trials))
 
 
+def carrier_fault_rate(trials):
+    """Tỉ lệ ticket dẫn tới việc ghi lỗi hãng vận chuyển (bắt được chùm lỗi hãng)."""
+    return sum(len(t.get("faults", [])) > 0 for t in trials) / max(1, len(trials))
+
+
+def delivered_without_date_rate(trials):
+    """Tỉ lệ ticket có kiện hàng DELIVERED nhưng thiếu delivered_date."""
+    count = 0
+    for t in trials:
+        events = t.get("events", [])
+        if any(e.get("type") in ("escalate_missing_delivery_date", "deny_missing_delivery_date") for e in events):
+            count += 1
+    return count / max(1, len(trials))
+
+
 MONITORS = {
     "escalation_rate": escalation_rate,     # có sẵn; KHÔNG tính là metric mới của đội
+    "carrier_fault_rate": carrier_fault_rate,
+    "delivered_without_date_rate": delivered_without_date_rate,
 }
 STARTER_MONITORS = ("escalation_rate",)

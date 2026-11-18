@@ -29,6 +29,7 @@ lab10.helpers: db_delay_days, ticket_parcel, effective_policy, entitlement_vnd, 
 
 Mặc định dưới đây cho qua tất cả (= mốc base).
 """
+import re
 from . import helpers as H  # noqa: F401
 from .tools import Verdict
 
@@ -67,6 +68,9 @@ def _gate_issue_refund(ctx, action):
         return Verdict.deny("đơn hàng đã được hoàn tiền trước đó")
 
     parcel = H.ticket_parcel(order, ctx.ticket, ctx.as_of)
+    if parcel.get("status") == "DELIVERED" and not parcel.get("delivered_date"):
+        ctx.log("deny_missing_delivery_date", parcel_id=parcel.get("parcel_id"))
+        return Verdict.deny("dữ liệu tracking không đầy đủ (thiếu delivered_date)")
     delay = H.db_delay_days(parcel, ctx.as_of)
     true_amt = H.entitlement_vnd(pol, order, delay, parcel.get("delay_cause"))
     if true_amt <= 0:
@@ -123,6 +127,9 @@ def _gate_file_carrier_fault(ctx, action):
         return Verdict.deny("đã ghi lỗi hãng cho ticket này")
 
     parcel = H.ticket_parcel(order, ctx.ticket, ctx.as_of)
+    if parcel.get("status") == "DELIVERED" and not parcel.get("delivered_date"):
+        ctx.log("deny_fault_missing_delivery_date", parcel_id=parcel.get("parcel_id"))
+        return Verdict.deny("không ghi lỗi hãng khi dữ liệu tracking thiếu delivered_date")
     db_delay = H.db_delay_days(parcel, ctx.as_of)
     if not H.carrier_at_fault(pol, parcel, db_delay):
         ctx.log("block_wrongful_carrier_fault", parcel_id=parcel["parcel_id"], cause=parcel.get("delay_cause"))
@@ -171,9 +178,35 @@ def _gate_notify_carrier(ctx, action):
 
 def pre_guard(ctx):
     pol = _current_policy(ctx)
-    if pol is not None:
-        ctx.log("policy_pinned", policy_id=pol["policy_id"])
-        return Verdict.allow(policy_id=pol["policy_id"])
+    pinned_policy = pol["policy_id"] if pol else None
+
+    # S1: Kiện hàng DELIVERED nhưng thiếu delivered_date -> dữ liệu tracking không hoàn chỉnh, escalate cho người
+    order_id = ctx.ticket.get("order_id")
+    if order_id:
+        order = ctx.tools.lookup_order(order_id)
+        if order:
+            for p in order.get("parcels", []):
+                if p.get("status") == "DELIVERED" and not p.get("delivered_date"):
+                    ctx.log("escalate_missing_delivery_date", parcel_id=p.get("parcel_id"), order_id=order_id)
+                    return Verdict.escalate("kiện hàng đã giao nhưng thiếu ngày giao trong dữ liệu tracking")
+
+    # S1 & Prompt/Claim: Loại bỏ số ngày khách tự khai để không ghi đè nguồn sự thật DB
+    orig_text = ctx.ticket.get("text", "")
+    clean_text = re.sub(
+        r"((?:trễ|tre|chậm|muộn|late|delay(?:ed)?)\D{0,24}?)\d{1,3}(\s*(?:ngày|ngay|days?|hôm))",
+        r"\1\2",
+        orig_text,
+        flags=re.IGNORECASE,
+    )
+    if clean_text != orig_text:
+        ctx.log("strip_claimed_delay", orig_text=orig_text, clean_text=clean_text)
+        if pinned_policy:
+            return Verdict.rewrite("bỏ số ngày khách tự khai để dùng dữ liệu tracking DB", clean_text, policy_id=pinned_policy)
+        return Verdict.rewrite("bỏ số ngày khách tự khai để dùng dữ liệu tracking DB", clean_text)
+
+    if pinned_policy:
+        ctx.log("policy_pinned", policy_id=pinned_policy)
+        return Verdict.allow(policy_id=pinned_policy)
     return Verdict.allow()
 
 

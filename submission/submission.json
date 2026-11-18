@@ -3,15 +3,15 @@
   "members": [
     "LeThaiDuong-2A202603415",
     "NguyenTrungDuy-2A202603387",
-    "PhamQuangTruong-2A20260378",
+    "PhamQuangTruong-2A202603378",
     "NguyenVuKhanh-2A202603427"
   ],
   "incident": "S1",
   "decision_v1": "Tiếp tục",
-  "decision_v2": "",
+  "decision_v2": "Tiếp tục",
   "three_lines": {
-    "environment_assumption": "",
-    "reduce_or_prevent": "",
-    "measure_in_pilot": ""
+    "environment_assumption": "Dữ liệu tracking từ trạm quét của đối tác vận chuyển luôn đầy đủ ngày giao (delivered_date) khi đơn hàng đã chuyển trạng thái sang DELIVERED.",
+    "reduce_or_prevent": "Cổng kiểm soát của đội thực sự NGĂN được tác hại vì các kiểm tra toàn vẹn dữ liệu và trần strike cap nằm ở tầng hệ thống (pre_guard và write_gate), chủ động chặn và escalate trước khi bất kỳ lệnh ghi nào được thực thi.",
+    "measure_in_pilot": "Cần đo lại tỉ lệ kiện hàng có trạng thái giao không nhất quán với biên bản ký nhận thực tế và tần suất chạm trần ghi lỗi của từng hãng trong tuần đầu chạy thử nghiệm thật."
   }
 }
