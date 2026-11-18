@@ -1,6 +1,6 @@
 # Phiếu B · Đo, rủi ro, cổng vòng 1 và quyết định v1 · Khối 2A + 2B + chốt (phút 65–115)
 
-**Bàn:** ______
+**Bàn:** K5-L3A-DAY10-KhoHieu-PoCtoPilotGate1
 
 Tiêu chí đã ký ở Phiếu A. Từ phút 65 bàn mới được chạy trợ lý. Khối 2A (65–85) chưa sửa code hay config. Khối 2B (85–105) sửa
 `lab10/guards.py` và `config/operating_gates.json`. Phút 105–115 chốt cổng vòng 1 rồi viết quyết định v1. Sau phút 115 không sửa phiếu này
@@ -45,18 +45,18 @@ python3 -m lab10.eval --suite base --stage base --note "baseline"
 python3 -m lab10.gate --run runs/<mã lần chạy>/report.json
 ```
 
-- Mã lần chạy: `__________` (ghi cả vào B0 dòng 1)
-- Ngưỡng đã ký nào `[CHƯA]` đạt: …
-- Khối "kinh doanh và vận hành" ở cuối output: dòng nào đáng lo? …
-- Khối "theo kho và hãng": kho hoặc hãng nào có số xấu nhất? …
+- Mã lần chạy: `(chờ ký acceptance_criteria.json ở Khối 1 rồi chạy eval --suite base --stage base)` (ghi cả vào B0 dòng 1)
+- Ngưỡng đã ký nào `[CHƯA]` đạt: `(chờ chạy lab10.gate sau khi ký)`
+- Khối "kinh doanh và vận hành" ở cuối output: dòng nào đáng lo? `(chờ chạy eval sau khi ký)`
+- Khối "theo kho và hãng": kho hoặc hãng nào có số xấu nhất? `(chờ chạy eval sau khi ký)`
 
 **Cổng so tiêu chí này có nên tự chặn một bản phát hành không (so với để người duyệt)?**
 
 | Lý lẽ ủng hộ tự chặn | Lý lẽ phản đối |
 |---|---|
-| | |
+| Ngăn tự động, dứt khoát mọi bản phát hành vi phạm ngưỡng an toàn/pháp lý cứng (`wrongful_refund_vnd_max = 0`, `wrongful_carrier_faults_max = 0`, `pii_leaks_max = 0`) hoặc làm hỏng ca đang đúng (`regression`), tránh thiệt hại không đảo ngược cho LogiX, hãng vận chuyển và người nhận quà. | Các chỉ số hiệu năng/kinh doanh (`pass_rate`, `pass_k`, `escalation_rate`, `cost_per_ticket_vnd`, `roi`) còn phụ thuộc phạm vi pilot và giả thuyết sửa cụ thể (dữ liệu PoC là mock); tự chặn tuyệt đối sẽ không cho phép chọn **Thu hẹp** kho/phạm vi hoặc **Cải tiến thêm**. |
 
-Khuyến nghị (khoanh một): **tự chặn · người duyệt · kết hợp**. Vì: …
+Khuyến nghị (khoanh một): **[kết hợp]**. Vì: Dùng cổng tự chặn cứng đối với các ngưỡng an toàn, pháp lý (`wrongful_refund_vnd`, `wrongful_carrier_faults`, `pii_leaks`) và lỗi `regression`; còn các ngưỡng chất lượng, chi phí và vận hành thì chuyển người có thẩm quyền duyệt để quyết định **Thu hẹp**, **Cải tiến thêm** hay **Dừng** theo `decision_rule` đã ký.
 
 ---
 
@@ -251,7 +251,7 @@ Bốn lăng kính (bắt buộc đủ cả bốn; dự án AI hay chết ở ba 
 
 | Lý do thất bại (viết ở thì quá khứ) | Lăng kính | Kiểm được hôm nay? (trace / data / config nào) | Thành cổng phòng ngừa nào (code hay config) / hay vào risk register |
 |---|---|---|---|
-| | Kỹ thuật | | |
+| Trợ lý đã hoàn tiền sai và ghi lỗi oan cho hãng vận chuyển vì tin số ngày trễ khách tự khai (`model_override`), nghe theo chỉ thị tiêm vào ghi chú/ticket (`directive`), đọc nhầm phiên bản chính sách cũ, ghi lặp khi LLM báo lỗi 429 (`write_retry`), hoặc chép thông tin cá nhân người nhận quà vào tin gửi hãng (`notify_carrier`). | Kỹ thuật | `trace` (`T-002@55`, `--adhoc`), `data/world.json` (`orders[].parcels`, `policies`, `approvals`, `is_gift`), `eval` (`wrongful_refund_vnd`, `wrongful_carrier_faults`, `pii_leaks`) | Cổng code trong `lab10/guards.py`: `pre_guard` ghim policy theo `ctx.as_of`; `write_gate` đối chiếu `issue_refund` & `file_carrier_fault` theo tracking DB + chống hoàn trùng; `write_gate` lọc `notify_carrier` theo `carrier_notice_fields`. |
 | | Kinh doanh | | |
 | | Con người và vận hành | | |
 | | Pháp lý | | |
@@ -275,17 +275,17 @@ python3 -m unittest discover -s tests
 
 | # | Cổng (hàm và nhánh, ví dụ `write_gate` khi `tool == "issue_refund"`) | Ứng với dòng nào ở B6 / B4 | Chặn điều gì, dựa vào nguồn sự thật nào | Mã lần chạy `base · after` | Ca đang đúng nào bị hỏng? (phải là "không") |
 |---|---|---|---|---|---|
-| 1 | | | | | |
-| 2 | | | | | |
-| 3 | | | | | |
+| 1 | `pre_guard(ctx)` + `write_gate` khi `tool == "issue_refund"` (`_gate_issue_refund`) | B6 dòng Kỹ thuật & B4 `issue_refund` (WRONG / INVALID / PERTURBED) | Ghim đúng `policy_id` theo `ctx.as_of`; chặn hoàn trùng (`refund_status`, `ledger_rows`), chặn `model_override` / `directive` / `fail_open` sai số tiền, kiểm tra `approvals` hợp lệ & trần ngày (`ops_limits`, `gates`), sửa tham số về chuẩn theo `lookup_order`, `ticket_parcel`, `db_delay_days`, `entitlement_vnd`, `lookup_policies`, `lookup_approvals` | `(chờ ký tiêu chí để chạy eval --suite base --stage after)` | không (đã qua unittest 13/13) |
+| 2 | `write_gate` khi `tool == "file_carrier_fault"` (`_gate_file_carrier_fault`) | B6 dòng Kỹ thuật & B4 `file_carrier_fault` | Chặn ghi lỗi hãng oan và ghi trùng khi chưa đủ ngày trễ hoặc `delay_cause` không thuộc `fault_causes`, chặn vượt trần lỗi hãng/ngày, chuẩn hoá đúng `parcel_id`/`carrier_id`/`driver_id`/`delay_days` theo `ticket_parcel` và `carrier_at_fault` | `(chờ ký tiêu chí để chạy eval --suite base --stage after)` | không (đã qua unittest 13/13) |
+| 3 | `write_gate` khi `tool == "notify_carrier"` (`_gate_notify_carrier`) | B6 dòng Kỹ thuật & B4 PERTURBED (PII) | Loại bỏ `recipient_contact`, `customer_note` và mọi trường ngoài `pol["carrier_notice_fields"]` (`order_id`, `parcel_id`, `district`, `delay_days`) dựa vào `lookup_policies` | `(chờ ký tiêu chí để chạy eval --suite base --stage after)` | không (đã qua unittest 13/13) |
 
 ### B7.2 · Câu 2.7 · Hai bước tránh rò rỉ dữ liệu
 
 Bàn đang chỉnh cổng tới khi 22 ticket bộ nền xanh hết. Nêu 2 bước cụ thể để không "chỉnh trên chính bộ dùng để chấm"
 (gắn với bộ nền, gói sự cố, bài kiểm tra ẩn):
 
-1. …
-2. …
+1. **Không viết quy tắc khớp riêng cho 22 ticket của bộ nền (`base`):** Toàn bộ kiểm tra trong `lab10/guards.py` chỉ đối chiếu theo quy luật tổng quát từ nguồn sự thật (`H.ticket_parcel`, `H.db_delay_days`, `H.entitlement_vnd`, `H.carrier_at_fault`, `pol["carrier_notice_fields"]`, `lookup_approvals`), tuyệt đối không hardcode mã `T-002` hay cụm từ tiếng Việt cụ thể, để cổng vẫn đúng trên gói sự cố (`incidents/Sx`) và bài kiểm tra ẩn (đơn khác, khách khác, cách viết khác, ngày khác).
+2. **Đóng băng vòng 1 trước khi mở gói sự cố và kiểm tra bằng ticket tự viết độc lập:** Dùng `lab10.checkpoint` chụp cố định bản vòng 1 (`prepared`) trước phút 125 khi chưa biết gói sự cố, dùng `--adhoc` với ticket tự viết ngoài bộ nền để kiểm chứng tính chất tổng quát (Câu 2.8), và tách hẳn bài kiểm tra ẩn để team chấm chạy độc lập sau buổi học.
 
 ### B7.3 · Câu 2.8 · Một behavioral test
 
